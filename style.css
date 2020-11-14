@@ -5,7 +5,7 @@ article,aside,details,figcaption,figure,footer,header,hgroup,menu,nav,section{di
 nav ul{list-style:none}
 blockquote,q{quotes:none}
 blockquote:before,blockquote:after,q:before,q:after{content:none}
-a{margin:0;padding:0;font-size:100%;vertical-align:baseline;background:transparent;color:#c8c3bc}
+a{margin:0;padding:0;font-size:100%;vertical-align:baseline;background:transparent}
 ins{background-color:#ff9;color:#000;text-decoration:none}
 mark{background-color:#ff9;color:#000;font-style:italic;font-weight:bold}
 del{text-decoration:line-through}
@@ -19,24 +19,26 @@ body,html {
 }
 header {
     background: #333333;
-    padding: 20px 30px;
-    max-width: 940px;
+    padding: 20px 0px;
+    width: 100%;
     margin: auto;
 }
 nav {
-    display: inline-block;
+    float: right;
+    margin: 5px 0px;
 }
 nav ul li a {
     background: #EEE;
-    padding: 2px 10px;
+    padding: 10px 10px;
     font-size: 20px;
     text-decoration: none;
     font-weight: bold;
     color: #444;
     border-radius: 10px;
+    vertical-align: middle;
 }
 nav ul li a:hover {
-	background: #FFF;
+	background: lightgrey;
 }
 nav ul li {
     display: inline-block;
@@ -45,14 +47,44 @@ nav ul li {
 nav ul {
     list-style: none;
 }
+#headerContent {
+    max-width: 1000px;
+    margin: auto;
+    border: none;
+}
 #pageContent {
     max-width: 1000px;
     margin: auto;
     border: none;
 }
+#urlInput {
+    display: flex;
+    align-items: center;
+    padding-bottom: 30px;
+    margin: auto;
+    max-width: 1000px;
+}
+#urlInput h3 {
+    padding-right: 15px;
+    width: 300px;
+    vertical-align: middle;
+}
+#urlInput input {
+    width: 100%;
+    padding: 5px 5px;
+    margin: 5px 0;
+    box-sizing: border-box;
+    border: 2px solid black;
+    border-radius: 4px;
+    vertical-align: middle;
+}
+#urlInput input:focus {
+    background-color: lightgray;
+}
+
 main {
 	float: left;
-	width: 60%;
+	width: 100%;
 }
 aside {
 	float: right;
@@ -74,14 +106,25 @@ main section {
 	
 }
 footer {
+    display: inline-block;
+    position:fixed;
+    left:0px;
+    bottom:0px;
+    width:100%;
 	background: #333333;
-	max-width: 1000px;
-	margin: auto;
+    margin: auto;
+    padding: 10px;
 	clear: both;
-	text-align: center;
+    text-align: center;
+    color: white;
+}
+footer a {
+    color: white;
 }
 footer p {
-	padding: 20px;
+    display: inline-block;
+    vertical-align: middle;
+    padding: 10px;
 }
 address {
     padding: 10px 20px 30px 10px;
@@ -98,17 +141,21 @@ aside > div {
     margin-right: 75px;
     color: #FFF;
 }
+#logo a {
+    margin-right: 65px;
+    margin-left: 10px;
+
+}
 #logo img {
     width: 50px;
     vertical-align: middle;
-    margin-right: 10px;
 }
 body > section {
     max-width: 1000px;
     margin: auto;
     padding: 30px 0px;
     border-bottom: 1px solid #999;
-    color: #c8c3bc;
+    color: black;
 }
 
 @media screen and (max-width: 1000px) {
