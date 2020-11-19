@@ -15,7 +15,8 @@ hr{display:block;height:1px;border:0;border-top:1px solid #ccc;margin:1em 0;padd
 input,select{vertical-align:middle}
 
 body,html {
-	background-color: #FFF;
+    background-color: #FFF;
+    margin-bottom: 50px;
 }
 header {
     background: #333333;
@@ -60,14 +61,26 @@ nav ul {
 #urlInput {
     display: flex;
     align-items: center;
-    padding-bottom: 30px;
     margin: auto;
     max-width: 1000px;
 }
 #urlInput h3 {
-    padding-right: 15px;
-    width: 300px;
+    margin-right: 15px;
+    width: 325px;
     vertical-align: middle;
+}
+#urlInput button {
+    margin-left: 15px;
+    width: 75px;
+    height: 30px;
+    box-sizing: border-box;
+    border: 2px solid black;
+    border-radius: 4px;
+    text-align: center;
+    vertical-align: middle;
+}
+#urlInput button:hover {
+    background-color: lightgray;
 }
 #urlInput input {
     width: 100%;
@@ -98,12 +111,6 @@ article {
 article h2 {
     font-weight: normal;
     margin-bottom: 12px;
-}
-article p {
-	
-}
-main section {
-	
 }
 footer {
     display: inline-block;
@@ -156,6 +163,26 @@ body > section {
     padding: 30px 0px;
     border-bottom: 1px solid #999;
     color: black;
+    line-height: normal;
+}
+body > section > h2 {
+    padding-bottom: 20px;
+}
+body > section > p > a {
+    font-weight: bold;
+    color: black;
+}
+body > section > pre {
+    margin: 20px 0px;
+    padding: 16px;
+    overflow: auto;
+    font-size: 12pt;
+    line-height: 1.45;
+    background-color: lightgray;
+    border-radius: 6px;
+}
+body > section > a > img {
+    width: 100%;
 }
 
 @media screen and (max-width: 1000px) {

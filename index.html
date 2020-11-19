@@ -15,13 +15,14 @@
 	<header>
 		<div id="headerContent">
 			<div id="logo">
-				<a href="https://rateyourmusic.com"><img src="sonemic-512.png"></a>
+				<a href="/"><img src="sonemic-512.png"></a>
 				sonemic apple album parser
 			</div>
 			<nav>  
 				<ul>
 					<li><a href="https://github.com/pizzaboy314/SonemicAppleAlbumParser">project repo</a>
 					<li><a href="https://rateyourmusic.com">rym</a>
+					<li><a href="about.html">about</a>
 				</ul>
 			</nav>
 		</div>
@@ -29,13 +30,12 @@
 	<section>
 		<strong>A tool for parsing release details from Apple album pages to add new Sonemic/RYM release entries.</strong>
 	</section>
-	<section id="pageContent">
-		<main role="main">
-			<div id="urlInput">
-				<h3>Enter an Apple album url:</h2>
-				<input type="text" id="url" name="url">	
-			</div>
-		</main>
+	<section>
+		<div id="urlInput">
+			<h3>Enter an Apple album url:</h2>
+			<input type="text" id="url" name="url">	
+			<button type="button" onclick="alert('parsing')">Parse</button>
+		</div>
 		<!--
 		<aside>
 			<div>Sidebar 1</div>

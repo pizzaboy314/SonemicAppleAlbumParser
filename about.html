@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="canonical" href="https://pizzaboy314.github.io/SonemicAppleAlbumParser/" />
+    <title>Sonemic Apple Album Parser: About</title>
+    <meta name="description" content="Tool for adding releases to Sonemic/RYM from Apple music album pages.">
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js"></script>
+</head>
+
+<body>
+	<header>
+		<div id="headerContent">
+			<div id="logo">
+				<a href="/"><img src="sonemic-512.png"></a>
+				sonemic apple album parser
+			</div>
+			<nav>  
+				<ul>
+					<li><a href="https://github.com/pizzaboy314/SonemicAppleAlbumParser">project repo</a>
+					<li><a href="https://rateyourmusic.com">rym</a>
+					<li><a href="about.html">about</a>
+				</ul>
+			</nav>
+		</div>
+	</header>
+	<section>
+		<h1>about this app</h1>
+	</section>
+	<section>
+		<p><a href="https://rateyourmusic.com">RYM</a> (soon to be Sonemic) is a music site much like IMDb for rating, cataloging, and finding new music. The advanced tracklist input for adding a new album to the site is of the format:</p>
+		<pre><code>TRACK NUM|TRACK NAME|TRACK DURATION</code></pre>
+		<p>Using a Apple Music album URL as a source, this app gives you the artist name, album title, release date, album type, the full tracklist in the correct format, and a full list of featured artists. It also automatically downloads the album artwork in high resolution.</p>
+	</section>
+	<section>
+		<h2>example</h2>
+		<p>Given an input of <a href="https://itunes.apple.com/us/album/to-pimp-a-butterfly/974187289">https://itunes.apple.com/us/album/to-pimp-a-butterfly/974187289</a> the application will output:</p>
+		<pre><code>Kendrick Lamar
+To Pimp a Butterfly
+Mar 16, 2015
+
+Type: Album
+
+1|Wesley's Theory|4:47
+2|For Free? (Interlude)|2:10
+3|King Kunta|3:54
+4|Institutionalized|4:31
+5|These Walls|5:00
+6|u|4:28
+7|Alright|3:39
+8|For Sale? (Interlude)|4:51
+9|Momma|4:43
+10|Hood Politics|4:52
+11|How Much a Dollar Cost|4:21
+12|Complexion (A Zulu Love)|4:23
+13|The Blacker the Berry|5:28
+14|You Ain't Gotta Lie (Momma Said)|4:01
+15|i|5:36
+16|Mortal Man|12:07
+
+Track Features
+George Clinton:   1
+Thundercat:       1,5
+James Fauntleroy: 11
+Ronald Isley:     11
+Rapsody:          12
+Snoop Dogg:       4
+Bilal:            4,5
+Anna Wise:        4,5</code></pre>
+		<a href="https://is2-ssl.mzstatic.com/image/thumb/Music128/v4/2c/5d/7c/2c5d7c30-8c82-a810-1f66-41131b8a989b/00602547276636.rgb.jpg/9999x9999bb-60.jpg" download="To Pimp a Butterfly.jpg">
+			<img src="https://is2-ssl.mzstatic.com/image/thumb/Music128/v4/2c/5d/7c/2c5d7c30-8c82-a810-1f66-41131b8a989b/00602547276636.rgb.jpg/9999x9999bb-60.jpg">
+		</a>
+	</section>
+	<footer>
+		<p>&#169; bryan spahr  &#8226;  
+			<a href="https://html5-templates.com/preview/html5-page-layout.html" target="_blank" rel="nofollow">html5 template</a>
+		</p>
+	</footer>
+
+
+</body>
+
+</html>
