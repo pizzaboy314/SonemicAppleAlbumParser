@@ -1,7 +1,7 @@
 function parseHTML() {
     var url = document.getElementById('url').value;
 
-    $.getJSON('http://www.whateverorigin.org/get?url=' + encodeURIComponent(url) + '&callback=?', function(data){
+    $.getJSON('https://api.allorigins.win/get?url=' + encodeURIComponent(url), function (data){
         var parser = new DOMParser();
         var doc = parser.parseFromString(data.contents, "text/html");
         var output = '';
@@ -27,6 +27,5 @@ function parseHTML() {
         var preTag = document.getElementById('outputContainer');
         preTag.style.display = 'block';
     });
-
 
 }
