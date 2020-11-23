@@ -3,13 +3,14 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="canonical" href="https://pizzaboy314.github.io/SonemicAppleAlbumParser/" />
-	<base href="https://pizzaboy314.github.io/SonemicAppleAlbumParser/">
-    <title>Sonemic Apple Album Parser</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Tool for adding releases to Sonemic/RYM from Apple music album pages.">
-    <link rel="stylesheet" href="style.css">
-    <script src="script.js"></script>
+    <title>Sonemic Apple Album Parser</title>
+	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon"/>
+	<link rel="canonical" href="https://pizzaboy314.github.io/SonemicAppleAlbumParser/" />
+	<link rel="stylesheet" href="style.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script type="text/javascript" src="/script.js"></script>
 </head>
 
 <body>
@@ -35,15 +36,45 @@
 		<div id="urlInput">
 			<h3>Enter an Apple album url:</h2>
 			<input type="text" id="url" name="url">	
-			<button type="button" onclick="alert('parsing')">Parse</button>
+			<button type="button" onclick="parseHTML()">Parse</button>
 		</div>
-		<!--
-		<aside>
-			<div>Sidebar 1</div>
-			<div>Sidebar 2</div>
-			<div>Sidebar 3</div>
-		</aside>
-		-->
+	</section>
+	<section id="outputContainer">
+		<pre id="textOutputContainer"><code id="textOutput">Kendrick Lamar
+To Pimp a Butterfly
+Mar 16, 2015
+
+Type: Album
+
+1|Wesley's Theory|4:47
+2|For Free? (Interlude)|2:10
+3|King Kunta|3:54
+4|Institutionalized|4:31
+5|These Walls|5:00
+6|u|4:28
+7|Alright|3:39
+8|For Sale? (Interlude)|4:51
+9|Momma|4:43
+10|Hood Politics|4:52
+11|How Much a Dollar Cost|4:21
+12|Complexion (A Zulu Love)|4:23
+13|The Blacker the Berry|5:28
+14|You Ain't Gotta Lie (Momma Said)|4:01
+15|i|5:36
+16|Mortal Man|12:07
+
+Track Features
+George Clinton:   1
+Thundercat:       1,5
+James Fauntleroy: 11
+Ronald Isley:     11
+Rapsody:          12
+Snoop Dogg:       4
+Bilal:            4,5
+Anna Wise:        4,5</code></pre>
+		<a id="coverLink" href="https://is2-ssl.mzstatic.com/image/thumb/Music128/v4/2c/5d/7c/2c5d7c30-8c82-a810-1f66-41131b8a989b/00602547276636.rgb.jpg/9999x9999bb-60.jpg" download="To Pimp a Butterfly.jpg">
+			<img it="coverImg" src="https://is2-ssl.mzstatic.com/image/thumb/Music128/v4/2c/5d/7c/2c5d7c30-8c82-a810-1f66-41131b8a989b/00602547276636.rgb.jpg/9999x9999bb-60.jpg">
+		</a>
 	</section>
 	<footer>
 		<p>&#169; bryan spahr  &#8226;  

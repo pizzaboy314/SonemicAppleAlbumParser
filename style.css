@@ -181,6 +181,11 @@ body > section > pre {
     background-color: lightgray;
     border-radius: 6px;
 }
+
+#outputContainer {
+    display: none;
+}
+
 body > section > a > img {
     width: 100%;
 }
