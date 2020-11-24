@@ -14,7 +14,12 @@ function parseHTML() {
 
         var releaseDateP = doc.querySelector('.song-released-container.typography-footnote-emphasized');
         var releaseDate = releaseDateP.textContent.replace('RELEASED','').trim();
-        
+
+        var coverArtDiv = doc.querySelector('.product-lockup__artwork-for-product');
+        var srcset = coverArtDiv.children[0].children[1].srcset;
+        var firstsize = srcset.match(/\d\d\dw/);
+        var coverArtThumbUrl = srcset.substring(0,srcset.indexOf(firstsize)).trim();
+        var coverArtUrl = coverArtThumbUrl.replace(/\d\d\dx\d\d\d/,'9999x9999');
 
 
         output = output + artistName + '\n';
@@ -23,9 +28,16 @@ function parseHTML() {
 
         var codeTag = document.getElementById('textOutput');
         codeTag.innerHTML = output;
+
+        var coverAnchor = document.getElementById('coverAnchor');
+        coverAnchor.href = coverArtUrl;
+        coverAnchor.download = albumTitle + '.jpg';
+
+        var coverImg = document.getElementById('coverImg');
+        coverImg.src = coverArtUrl;
     
-        var preTag = document.getElementById('outputContainer');
-        preTag.style.display = 'block';
+        var sectionTag = document.getElementById('outputContainer');
+        sectionTag.style.display = 'block';
     });
 
 }
