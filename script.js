@@ -35,11 +35,40 @@ function parseHTML() {
         var coverArtThumbUrl = srcset.substring(0,srcset.indexOf(firstsize)).trim();
         var coverArtUrl = coverArtThumbUrl.replace(/\d\d\dx\d\d\d/,'9999x9999');
 
+        var trackNameDivs = doc.querySelectorAll('.song-name.typography-label');
+        var trackNames = new Array(trackNameDivs.length);
+        for (i = 0; i < trackNameDivs.length; i++) {
+            trackNames[i] = trackNameDivs[i].textContent.replace('<!---->','').trim();
+        }
+
+        var discCount = 1;
+        var trackNumberDivs = doc.querySelectorAll('.song-index');
+        var trackNumbers = new Array(trackNumberDivs.length);
+        var discNumbers = new Array(trackNumberDivs.length);
+        var prevTrackNumber = 1;
+        for (i = 0; i < trackNumberDivs.length; i++) {
+            trackNumbers[i] = trackNumberDivs[i].children[0].textContent.trim();
+            if(parseInt(trackNumbers[i], 10) < prevTrackNumber){
+                discCount++;
+            }
+            discNumbers[i] = discCount;
+            prevTrackNumber = parseInt(trackNumbers[i], 10);
+        }
+        
+        var trackDurationDivs = doc.querySelectorAll('.time-data');
+        var trackDurations = new Array(trackDurationDivs.length);
+        for (i = 0; i < trackDurationDivs.length; i++) {
+            trackDurations[i] = trackDurationDivs[i].textContent.trim();
+        }
 
         output = output + artistName + '\n';
         output = output + albumTitle + '\n';
         output = output + releaseDate + '\n\nType: ';
         output = output + albumType + '\n\n';
+        for (i = 0; i < trackNames.length; i++) {
+            output = output + ((discCount == 1) ? '' : discNumbers[i] + '.');
+            output = output + trackNumbers[i] + '|' + trackNames[i] + '|' + trackDurations[i] + '\n';
+        }
 
         var codeTag = document.getElementById('textOutput');
         codeTag.innerHTML = output;
