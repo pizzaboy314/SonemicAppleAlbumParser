@@ -193,6 +193,10 @@ body > section > pre {
     margin-right: auto;
 }
 
+#exampleArt {
+    width: 100%;
+}
+
 
 @media screen and (max-width: 1000px) {
 	body > section {
