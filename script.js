@@ -4,13 +4,27 @@ function parseHTML() {
     $.getJSON('https://api.allorigins.win/get?url=' + encodeURIComponent(url), function (data){
         var parser = new DOMParser();
         var doc = parser.parseFromString(data.contents, "text/html");
+
+        var oldCoverArtAnchor = document.getElementById('coverAnchor');
+        if(oldCoverArtAnchor != null){
+            oldCoverArtAnchor.remove();
+        }
+
+        var albumType = 'Album';
         var output = '';
 
         var artistNameAnchor = doc.querySelector('.dt-link-to');
         var artistName = artistNameAnchor.textContent.trim();
 
+        var albumTitle = '';
         var albumTitleH1 = doc.querySelector('.product-name.typography-title-emphasized.clamp-4');
-        var albumTitle = albumTitleH1.textContent.replace('<!---->','').trim();
+        var albumTitleText = albumTitleH1.textContent.replace('<!---->','').trim();
+        if(albumTitleText.includes('EP')){
+            albumType = 'EP';
+            albumTitle = albumTitleText.replace(/- EP/,'').trim();
+        } else {
+            albumTitle = albumTitleText;
+        }
 
         var releaseDateP = doc.querySelector('.song-released-container.typography-footnote-emphasized');
         var releaseDate = releaseDateP.textContent.replace('RELEASED','').trim();
@@ -24,19 +38,31 @@ function parseHTML() {
 
         output = output + artistName + '\n';
         output = output + albumTitle + '\n';
-        output = output + releaseDate + '\n';
+        output = output + releaseDate + '\n\nType: ';
+        output = output + albumType + '\n\n';
 
         var codeTag = document.getElementById('textOutput');
         codeTag.innerHTML = output;
 
-        var coverAnchor = document.getElementById('coverAnchor');
+        var coverAnchor = document.createElement('a');
+        coverAnchor.id = 'coverAnchor';
         coverAnchor.href = coverArtUrl;
         coverAnchor.download = albumTitle + '.jpg';
 
-        var coverImg = document.getElementById('coverImg');
+        var coverImg = document.createElement('img');
+        coverImg.onload = function(){
+            if(this.naturalWidth < 1000){
+                document.getElementById('coverImg').style.width = this.naturalWidth;
+            } else {
+                document.getElementById('coverImg').style.width = '100%';
+            }
+        };
+        coverImg.id = 'coverImg';
         coverImg.src = coverArtUrl;
+        coverAnchor.appendChild(coverImg);
     
         var sectionTag = document.getElementById('outputContainer');
+        sectionTag.appendChild(coverAnchor);
         sectionTag.style.display = 'block';
     });
 
