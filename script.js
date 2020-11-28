@@ -41,13 +41,16 @@ function parseHTML() {
         if((new RegExp('- EP$')).test(albumTitleText.toUpperCase())){
             albumType = 'EP';
             albumTitle = albumTitleText.replace(/- EP/,'').replace(/- Ep/,'').replace(/- ep/,'').trim();
+        } else if(albumTitleText.includes('(Live)') || albumTitleText.includes('[Live]')){
+            albumType = 'Live Album';
+            albumTitle = albumTitleText.replace('(Live)','').replace('[Live]','').trim();
         } else {
             albumTitle = albumTitleText;
         }
 
         // release date
         var releaseDateP = doc.querySelector('.song-released-container.typography-footnote-emphasized');
-        var releaseDate = releaseDateP.textContent.replace('RELEASED','').trim();
+        var releaseDate = releaseDateP.textContent.replace('RELEASED','').trim().toProperCase();
 
         // cover art img
         var coverArtDiv = doc.querySelector('.product-lockup__artwork-for-product');
@@ -112,6 +115,9 @@ function parseHTML() {
                     trackName = trackName.substring(0,trackName.indexOf('[feat.')).trim();
                 }
             }
+            if(albumType.includes('Live')){
+                trackName = trackName.replace('(Live)','').replace('[Live]','').trim();
+            }
             trackNames[i] = trackName;
         }
         featurePadBase++;
@@ -170,3 +176,7 @@ function parseHTML() {
     });
 
 }
+// https://stackoverflow.com/a/5574446
+String.prototype.toProperCase = function () {
+    return this.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+};
