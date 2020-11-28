@@ -1,3 +1,19 @@
+/*
+ * EXAMPLES
+ * 
+ * EP:
+ * https://music.apple.com/us/album/aromatic-ep/1325214121
+ * 
+ * Features: 
+ * https://music.apple.com/us/album/to-pimp-a-butterfly/974187289
+ * 
+ * Foreign Characters:
+ * https://music.apple.com/us/album/pedro-alt%C3%A9rio-bruno-piazza/577195766
+ * 
+ * Two Disc:
+ * https://music.apple.com/us/album/why-mountains-are-black-primeval-greek-village-music/1069921584
+ */
+
 function parseHTML() {
     var url = document.getElementById('url').value;
 
@@ -5,6 +21,7 @@ function parseHTML() {
         var parser = new DOMParser();
         var doc = parser.parseFromString(data.contents, "text/html");
 
+        // cleanup cover art elements from previous runs
         var oldCoverArtAnchor = document.getElementById('coverAnchor');
         if(oldCoverArtAnchor != null){
             oldCoverArtAnchor.remove();
@@ -13,34 +30,33 @@ function parseHTML() {
         var albumType = 'Album';
         var output = '';
 
+        // artist name
         var artistNameAnchor = doc.querySelector('.dt-link-to');
         var artistName = artistNameAnchor.textContent.trim();
 
+        // album title
         var albumTitle = '';
         var albumTitleH1 = doc.querySelector('.product-name.typography-title-emphasized.clamp-4');
         var albumTitleText = albumTitleH1.textContent.replace('<!---->','').trim();
-        if(albumTitleText.includes('EP')){
+        if((new RegExp('- EP$')).test(albumTitleText.toUpperCase())){
             albumType = 'EP';
-            albumTitle = albumTitleText.replace(/- EP/,'').trim();
+            albumTitle = albumTitleText.replace(/- EP/,'').replace(/- Ep/,'').replace(/- ep/,'').trim();
         } else {
             albumTitle = albumTitleText;
         }
 
+        // release date
         var releaseDateP = doc.querySelector('.song-released-container.typography-footnote-emphasized');
         var releaseDate = releaseDateP.textContent.replace('RELEASED','').trim();
 
+        // cover art img
         var coverArtDiv = doc.querySelector('.product-lockup__artwork-for-product');
         var srcset = coverArtDiv.children[0].children[1].srcset;
         var firstsize = srcset.match(/\d\d\dw/);
         var coverArtThumbUrl = srcset.substring(0,srcset.indexOf(firstsize)).trim();
         var coverArtUrl = coverArtThumbUrl.replace(/\d\d\dx\d\d\d/,'9999x9999');
 
-        var trackNameDivs = doc.querySelectorAll('.song-name.typography-label');
-        var trackNames = new Array(trackNameDivs.length);
-        for (i = 0; i < trackNameDivs.length; i++) {
-            trackNames[i] = trackNameDivs[i].textContent.replace('<!---->','').trim();
-        }
-
+        // track numbers + disc number if applicable
         var discCount = 1;
         var trackNumberDivs = doc.querySelectorAll('.song-index');
         var trackNumbers = new Array(trackNumberDivs.length);
@@ -54,13 +70,60 @@ function parseHTML() {
             discNumbers[i] = discCount;
             prevTrackNumber = parseInt(trackNumbers[i], 10);
         }
+
+        // track names
+        var trackNameDivs = doc.querySelectorAll('.song-name.typography-label');
+        var trackNames = new Array(trackNameDivs.length);
+        var trackFeats = new Map();
+        var featurePadBase = 0;
+        for (i = 0; i < trackNameDivs.length; i++) {
+            var trackName = trackNameDivs[i].textContent.replace('<!---->','').trim();
+            if(trackName.includes('(feat.') || trackName.includes('[feat.')){
+                var features = '';
+                if(trackName.includes('(feat.')){
+                    features = trackName.substring(trackName.indexOf('(feat.')+6,trackName.indexOf(')'));
+                } else {
+                    features = trackName.substring(trackName.indexOf('[feat.')+6,trackName.indexOf(']'));
+                }
+                var splitFeats = features.split(',');
+                for(j = 0; j < splitFeats.length; j++){
+                    if(splitFeats[j].includes('&')){
+                        var splitFeats2 = splitFeats[j].split('&');
+
+                        var featTrackNums = trackFeats.get(splitFeats2[0].trim());
+                        featTrackNums = featTrackNums != null ? featTrackNums + ',' + trackNumbers[i] : trackNumbers[i];
+                        trackFeats.set(splitFeats2[0].trim(),featTrackNums);
+                        featurePadBase = splitFeats2[0].trim().length > featurePadBase ? splitFeats2[0].trim().length : featurePadBase;
+
+                        featTrackNums = trackFeats.get(splitFeats2[1].trim());
+                        featTrackNums = featTrackNums != null ? featTrackNums + ',' + trackNumbers[i] : trackNumbers[i];
+                        trackFeats.set(splitFeats2[1].trim(),featTrackNums);
+                        featurePadBase = splitFeats2[1].trim().length > featurePadBase ? splitFeats2[1].trim().length : featurePadBase;
+                    } else {
+                        var featTrackNums = trackFeats.get(splitFeats[j].trim());
+                        featTrackNums = featTrackNums != null ? featTrackNums + ',' + trackNumbers[i] : trackNumbers[i];
+                        trackFeats.set(splitFeats[j].trim(),featTrackNums);
+                        featurePadBase = splitFeats[j].trim().length > featurePadBase ? splitFeats[j].trim().length : featurePadBase;
+                    }
+                }
+                if(trackName.includes('(feat.')){
+                    trackName = trackName.substring(0,trackName.indexOf('(feat.')).trim();
+                } else {
+                    trackName = trackName.substring(0,trackName.indexOf('[feat.')).trim();
+                }
+            }
+            trackNames[i] = trackName;
+        }
+        featurePadBase++;
         
+        // track durations
         var trackDurationDivs = doc.querySelectorAll('.time-data');
         var trackDurations = new Array(trackDurationDivs.length);
         for (i = 0; i < trackDurationDivs.length; i++) {
             trackDurations[i] = trackDurationDivs[i].textContent.trim();
         }
 
+        // text output
         output = output + artistName + '\n';
         output = output + albumTitle + '\n';
         output = output + releaseDate + '\n\nType: ';
@@ -69,10 +132,20 @@ function parseHTML() {
             output = output + ((discCount == 1) ? '' : discNumbers[i] + '.');
             output = output + trackNumbers[i] + '|' + trackNames[i] + '|' + trackDurations[i] + '\n';
         }
-
+        if(trackFeats.size > 0){
+            output = output + '\nTrack Features\n';
+            for(let [artist,trackNums] of trackFeats){
+                var padding = '';
+                for(i = 0; i < featurePadBase - artist.length; i++){
+                    padding = padding + ' ';
+                }
+                output = output + artist + ': ' + padding + trackNums + '\n';
+            }
+        }
         var codeTag = document.getElementById('textOutput');
         codeTag.innerHTML = output;
 
+        // generate cover art html tags
         var coverAnchor = document.createElement('a');
         coverAnchor.id = 'coverAnchor';
         coverAnchor.href = coverArtUrl;
@@ -90,6 +163,7 @@ function parseHTML() {
         coverImg.src = coverArtUrl;
         coverAnchor.appendChild(coverImg);
     
+        // reveal the output in the dom
         var sectionTag = document.getElementById('outputContainer');
         sectionTag.appendChild(coverAnchor);
         sectionTag.style.display = 'block';
