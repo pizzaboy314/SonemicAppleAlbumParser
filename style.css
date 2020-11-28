@@ -58,6 +58,9 @@ nav ul {
     margin: auto;
     border: none;
 }
+#introText {
+    line-height: 1.6;
+  }
 #urlInput {
     display: flex;
     align-items: center;
