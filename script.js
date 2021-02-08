@@ -49,7 +49,7 @@ function parseHTML() {
         }
 
         // release date
-        var releaseDateP = doc.querySelector('.song-released-container.typography-footnote-emphasized');
+        var releaseDateP = doc.querySelector('.song-released-container.typography-subhead-emphasized');
         var releaseDate = releaseDateP.textContent.replace('RELEASED','').trim().toProperCase();
 
         // cover art img
