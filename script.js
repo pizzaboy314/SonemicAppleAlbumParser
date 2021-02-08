@@ -36,7 +36,7 @@ function parseHTML() {
 
         // album title
         var albumTitle = '';
-        var albumTitleH1 = doc.querySelector('.product-name.typography-title-emphasized.clamp-4');
+        var albumTitleH1 = doc.querySelector('.product-name.typography-large-title-semibold.clamp-4');
         var albumTitleText = albumTitleH1.textContent.replace('<!---->','').trim();
         if((new RegExp('- EP$')).test(albumTitleText.toUpperCase())){
             albumType = 'EP';
