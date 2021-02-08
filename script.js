@@ -75,7 +75,7 @@ function parseHTML() {
         }
 
         // track names
-        var trackNameDivs = doc.querySelectorAll('.song-name.typography-label');
+        var trackNameDivs = doc.querySelectorAll('.song-name.typography-body-tall');
         var trackNames = new Array(trackNameDivs.length);
         var trackFeats = new Map();
         var featurePadBase = 0;
