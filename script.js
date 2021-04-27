@@ -12,6 +12,9 @@
  * 
  * Two Disc:
  * https://music.apple.com/us/album/why-mountains-are-black-primeval-greek-village-music/1069921584
+ * 
+ * Various Artists:
+ * https://music.apple.com/us/album/cyberpunk-2077-more-music-from-night-city-radio-original/1558984869
  */
 
 function parseHTML() {
@@ -33,6 +36,9 @@ function parseHTML() {
         // artist name
         var artistNameDiv = doc.querySelector('.product-creator.typography-large-title');
         var artistName = artistNameDiv.children[0].textContent.trim();
+
+        // various artists flag
+        var vaRelease = (artistName.includes('Various Artists')) ? true : false;
 
         // album title
         var albumTitle = '';
@@ -121,6 +127,26 @@ function parseHTML() {
             trackNames[i] = trackName;
         }
         featurePadBase++;
+
+        // track artists, for various artists
+        var trackArtistDivs = doc.querySelectorAll('.songs-list-row__by-line');
+        var trackArtistStrings = new Array(trackNames.length);
+        if(vaRelease){
+            for (i = 0; i < trackArtistDivs.length; i++) {
+                var currDiv = trackArtistDivs[i];
+                var numArtists = currDiv.children.length;
+                var trackArtistString = '';
+                for(j = 0; j < numArtists; j++){
+                    trackArtistString = trackArtistString + currDiv.children[j].textContent.trim();
+                    if(j < (numArtists - 2)){
+                        trackArtistString = trackArtistString + ', ';
+                    } else if(j = (numArtists - 2)){
+                        trackArtistString = trackArtistString + ' & ';
+                    }  
+                }
+                trackArtistStrings[i] = trackArtistString;
+            }
+        }
         
         // track durations
         var trackDurationDivs = doc.querySelectorAll('.songs-list-row__length');
@@ -140,7 +166,11 @@ function parseHTML() {
         output = output + albumType + '\n\n';
         for (i = 0; i < trackNames.length; i++) {
             output = output + ((discCount == 1) ? '' : discNumbers[i] + '.');
-            output = output + trackNumbers[i] + '|' + trackNames[i] + '|' + trackDurations[i] + '\n';
+            output = output + trackNumbers[i] + '|';
+            if(vaRelease){
+                output = output + trackArtistStrings[i] + ' - ';
+            }
+            output = output + trackNames[i] + '|' + trackDurations[i] + '\n';
         }
         if(trackFeats.size > 0){
             output = output + '\nTrack Features\n';
