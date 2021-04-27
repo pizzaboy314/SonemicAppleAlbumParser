@@ -152,7 +152,7 @@ function parseHTML() {
                 output = output + artist + ': ' + padding + trackNums + '\n';
             }
         }
-        output = output + '\n\n' + copyright + '\n';
+        output = output + '\n' + copyright + '\n';
 
         var codeTag = document.getElementById('textOutput');
         codeTag.innerHTML = output;
