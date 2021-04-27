@@ -128,6 +128,10 @@ function parseHTML() {
         for (i = 0; i < trackDurationDivs.length; i++) {
             trackDurations[i] = trackDurationDivs[i].textContent.trim();
         }
+        
+        // copyright
+        var copyrightP = doc.querySelector('.song-copyright');
+        var copyright = copyrightP.textContent.trim().toProperCase();
 
         // text output
         output = output + artistName + '\n';
@@ -148,6 +152,8 @@ function parseHTML() {
                 output = output + artist + ': ' + padding + trackNums + '\n';
             }
         }
+        output = output + '\n\n' + copyright + '\n';
+
         var codeTag = document.getElementById('textOutput');
         codeTag.innerHTML = output;
 
