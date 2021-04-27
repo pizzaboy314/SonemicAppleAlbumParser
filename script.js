@@ -133,14 +133,14 @@ function parseHTML() {
         var trackArtistStrings = new Array(trackNames.length);
         if(vaRelease){
             for (i = 0; i < trackArtistDivs.length; i++) {
-                var currDiv = trackArtistDivs[i];
-                var numArtists = currDiv.children.length;
+                var currSpan = trackArtistDivs[i].children[0];
+                var numArtists = currSpan.children.length;
                 var trackArtistString = '';
                 for(j = 0; j < numArtists; j++){
-                    trackArtistString = trackArtistString + currDiv.children[j].textContent.trim();
+                    trackArtistString = trackArtistString + currSpan.children[j].textContent.trim();
                     if(j < (numArtists - 2)){
                         trackArtistString = trackArtistString + ', ';
-                    } else if(j = (numArtists - 2)){
+                    } else if(j == (numArtists - 2)){
                         trackArtistString = trackArtistString + ' & ';
                     }  
                 }
