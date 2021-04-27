@@ -61,7 +61,7 @@ function parseHTML() {
 
         // track numbers + disc number if applicable
         var discCount = 1;
-        var trackNumberDivs = doc.querySelectorAll('.song-index');
+        var trackNumberDivs = doc.querySelectorAll('.songs-list-row__song-index');
         var trackNumbers = new Array(trackNumberDivs.length);
         var discNumbers = new Array(trackNumberDivs.length);
         var prevTrackNumber = 1;
@@ -75,12 +75,12 @@ function parseHTML() {
         }
 
         // track names
-        var trackNameDivs = doc.querySelectorAll('.song-name.typography-body-tall');
+        var trackNameDivs = doc.querySelectorAll('.songs-list-row__song-name');
         var trackNames = new Array(trackNameDivs.length);
         var trackFeats = new Map();
         var featurePadBase = 0;
         for (i = 0; i < trackNameDivs.length; i++) {
-            var trackName = trackNameDivs[i].textContent.replace('<!---->','').trim();
+            var trackName = trackNameDivs[i].textContent.trim();
             if(trackName.includes('(feat.') || trackName.includes('[feat.')){
                 var features = '';
                 if(trackName.includes('(feat.')){
@@ -123,7 +123,7 @@ function parseHTML() {
         featurePadBase++;
         
         // track durations
-        var trackDurationDivs = doc.querySelectorAll('.time-data');
+        var trackDurationDivs = doc.querySelectorAll('.songs-list-row__length');
         var trackDurations = new Array(trackDurationDivs.length);
         for (i = 0; i < trackDurationDivs.length; i++) {
             trackDurations[i] = trackDurationDivs[i].textContent.trim();
