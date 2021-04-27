@@ -49,8 +49,8 @@ function parseHTML() {
         }
 
         // release date
-        var releaseDateP = doc.querySelector('.song-released-container.typography-subhead-emphasized');
-        var releaseDate = releaseDateP.textContent.replace('RELEASED','').trim().toProperCase();
+        var releaseDateP = doc.querySelector('.song-released-container');
+        var releaseDate = releaseDateP.textContent.replace('<!---->','').trim().toProperCase();
 
         // cover art img
         var coverArtDiv = doc.querySelector('.product-lockup__artwork-for-product');
