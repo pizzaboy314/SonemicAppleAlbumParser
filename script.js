@@ -31,8 +31,8 @@ function parseHTML() {
         var output = '';
 
         // artist name
-        var artistNameAnchor = doc.querySelector('.dt-link-to');
-        var artistName = artistNameAnchor.textContent.trim();
+        var artistNameDiv = doc.querySelector('.product-creator.typography-large-title');
+        var artistName = artistNameDiv.children[0].textContent.trim();
 
         // album title
         var albumTitle = '';
