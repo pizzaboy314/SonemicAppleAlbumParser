@@ -131,7 +131,7 @@ function parseHTML() {
         
         // copyright
         var copyrightP = doc.querySelector('.song-copyright');
-        var copyright = copyrightP.textContent.trim().toProperCase();
+        var copyright = copyrightP.textContent.trim().toProperCase().replace('Llc','LLC');
 
         // text output
         output = output + artistName + '\n';
