@@ -102,17 +102,17 @@ function parseHTML() {
                         var splitFeats2 = splitFeats[j].split('&');
 
                         var featTrackNums = trackFeats.get(splitFeats2[0].trim());
-                        featTrackNums = featTrackNums != null ? featTrackNums + ',' + discPrefix + trackNumbers[i] : trackNumbers[i];
+                        featTrackNums = featTrackNums != null ? featTrackNums + ',' + discPrefix + trackNumbers[i] : discPrefix + trackNumbers[i];
                         trackFeats.set(splitFeats2[0].trim(),featTrackNums);
                         featurePadBase = splitFeats2[0].trim().length > featurePadBase ? splitFeats2[0].trim().length : featurePadBase;
 
                         featTrackNums = trackFeats.get(splitFeats2[1].trim());
-                        featTrackNums = featTrackNums != null ? featTrackNums + ',' + discPrefix + trackNumbers[i] : trackNumbers[i];
+                        featTrackNums = featTrackNums != null ? featTrackNums + ',' + discPrefix + trackNumbers[i] : discPrefix + trackNumbers[i];
                         trackFeats.set(splitFeats2[1].trim(),featTrackNums);
                         featurePadBase = splitFeats2[1].trim().length > featurePadBase ? splitFeats2[1].trim().length : featurePadBase;
                     } else {
                         var featTrackNums = trackFeats.get(splitFeats[j].trim());
-                        featTrackNums = featTrackNums != null ? featTrackNums + ',' + discPrefix + trackNumbers[i] : trackNumbers[i];
+                        featTrackNums = featTrackNums != null ? featTrackNums + ',' + discPrefix + trackNumbers[i] : discPrefix + trackNumbers[i];
                         trackFeats.set(splitFeats[j].trim(),featTrackNums);
                         featurePadBase = splitFeats[j].trim().length > featurePadBase ? splitFeats[j].trim().length : featurePadBase;
                     }
