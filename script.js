@@ -34,15 +34,14 @@ function parseHTML() {
         var output = '';
 
         // artist name
-        var artistNameDiv = doc.querySelector('.product-creator.typography-large-title');
-        var artistName = artistNameDiv.children[0].textContent.trim();
+        var artistNameP = doc.querySelector('.headings__subtitles.svelte-1xz54i1');
+        var vaRelease = (artistNameP.textContent.includes('Various Artists')) ? true : false;
+        var artistName = vaRelease ? 'Various Artists' : artistNameP.children[0].textContent.trim();
 
-        // various artists flag
-        var vaRelease = (artistName.includes('Various Artists')) ? true : false;
 
         // album title
         var albumTitle = '';
-        var albumTitleH1 = doc.querySelector('.product-name.typography-large-title-semibold.clamp-4');
+        var albumTitleH1 = doc.querySelector('.headings__title.svelte-1xz54i1');
         var albumTitleText = albumTitleH1.textContent.replace('<!---->','').trim();
         if((new RegExp('- EP$')).test(albumTitleText.toUpperCase())){
             albumType = 'EP';
@@ -55,12 +54,20 @@ function parseHTML() {
         }
 
         // release date
-        var releaseDateP = doc.querySelector('.song-released-container');
-        var releaseDate = releaseDateP.textContent.replace('<!---->','').trim().toProperCase();
+        var releaseDateCopyrightP = doc.querySelector('.description.svelte-1djmx2p');
+        var releaseDateCopyright = releaseDateCopyrightP.textContent.split(/\r?\n/);
+        var releaseDate = releaseDateCopyright[0].replace('<!---->','').trim().toProperCase();
+        var copyright = '';
+        for (i = 0; i < releaseDateCopyright.length; i++) {
+            if(i > 1){
+                copyright = copyright + releaseDateCopyright[i].trim().toProperCase().replace('Llc','LLC') + '\n';
+            }
+
+        }            
 
         // cover art img
-        var coverArtDiv = doc.querySelector('.product-lockup__artwork-for-product');
-        var srcset = coverArtDiv.children[0].children[1].srcset;
+        var coverArtDiv = doc.querySelector('.artwork__radiosity.svelte-1xz54i1');
+        var srcset = coverArtDiv.children[0].children[0].children[0].srcset;
         var firstsize = srcset.match(/\d\d\dw/);
         var coverArtThumbUrl = srcset.substring(0,srcset.indexOf(firstsize)).trim();
         var coverArtUrl = coverArtThumbUrl.replace(/\d\d\dx\d\d\d/,'9999x9999');
@@ -136,13 +143,13 @@ function parseHTML() {
         if(vaRelease){
             for (i = 0; i < trackArtistDivs.length; i++) {
                 var currSpan = trackArtistDivs[i].children[0];
-                var numArtists = currSpan.children.length;
+                var numArtistsDoubled = currSpan.children.length;
                 var trackArtistString = '';
-                for(j = 0; j < numArtists; j++){
+                for(j = 0; j < numArtistsDoubled; j=j+2){
                     trackArtistString = trackArtistString + currSpan.children[j].textContent.trim();
-                    if(j < (numArtists - 2)){
+                    if(j < (numArtistsDoubled - 4)){
                         trackArtistString = trackArtistString + ', ';
-                    } else if(j == (numArtists - 2)){
+                    } else if(j == (numArtistsDoubled - 4)){
                         trackArtistString = trackArtistString + ' & ';
                     }  
                 }
@@ -156,10 +163,6 @@ function parseHTML() {
         for (i = 0; i < trackDurationDivs.length; i++) {
             trackDurations[i] = trackDurationDivs[i].textContent.trim();
         }
-        
-        // copyright
-        var copyrightP = doc.querySelector('.song-copyright');
-        var copyright = copyrightP.textContent.trim().toProperCase().replace('Llc','LLC');
 
         // text output
         output = output + artistName + '\n';
