@@ -70,7 +70,7 @@ function parseHTML() {
         var srcset = coverArtDiv.children[0].children[0].children[0].srcset;
         var firstsize = srcset.match(/\d\d\dw/);
         var coverArtThumbUrl = srcset.substring(0,srcset.indexOf(firstsize)).trim();
-        var coverArtUrl = coverArtThumbUrl.replace(/\d\d\dx\d\d\d/,'9999x9999');
+        var coverArtUrl = coverArtThumbUrl.replace(/\d\d\dx\d\d\d/,'9999x9999').replace('webp','jpg');
 
         // track numbers + disc number if applicable
         var discCount = 1;
