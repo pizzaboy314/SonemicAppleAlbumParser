@@ -34,14 +34,14 @@ function parseHTML() {
         var output = '';
 
         // artist name
-        var artistNameP = doc.querySelector('.headings__subtitles.svelte-1xz54i1');
+        var artistNameP = doc.querySelector('.headings__subtitles');
         var vaRelease = (artistNameP.textContent.includes('Various Artists')) ? true : false;
         var artistName = vaRelease ? 'Various Artists' : artistNameP.children[0].textContent.trim();
 
 
         // album title
         var albumTitle = '';
-        var albumTitleH1 = doc.querySelector('.headings__title.svelte-1xz54i1');
+        var albumTitleH1 = doc.querySelector('.headings__title');
         var albumTitleText = albumTitleH1.textContent.replace('<!---->','').trim();
         if((new RegExp('- EP$')).test(albumTitleText.toUpperCase())){
             albumType = 'EP';
@@ -54,7 +54,8 @@ function parseHTML() {
         }
 
         // release date
-        var releaseDateCopyrightP = doc.querySelector('.description.svelte-1djmx2p');
+        var releaseDateCopyrightDiv = doc.querySelector('.footer-body');
+        var releaseDateCopyrightP = releaseDateCopyrightDiv.children[0];
         var releaseDateCopyright = releaseDateCopyrightP.textContent.split(/\r?\n/);
         var releaseDate = releaseDateCopyright[0].replace('<!---->','').trim().toProperCase();
         var copyright = '';
@@ -66,7 +67,7 @@ function parseHTML() {
         }            
 
         // cover art img
-        var coverArtDiv = doc.querySelector('.artwork__radiosity.svelte-1xz54i1');
+        var coverArtDiv = doc.querySelector('.artwork__radiosity');
         var srcset = coverArtDiv.children[0].children[0].children[0].srcset;
         var firstsize = srcset.match(/\d\d\dw/);
         var coverArtThumbUrl = srcset.substring(0,srcset.indexOf(firstsize)).trim();
