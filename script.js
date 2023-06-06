@@ -95,7 +95,8 @@ function parseHTML() {
         var featurePadBase = 0;
         for (i = 0; i < trackNameDivs.length; i++) {
             var trackName = trackNameDivs[i].textContent.trim();
-            if(trackName.includes('(feat.') || trackName.includes('[feat.')){
+            if(trackName.includes('(feat.') || trackName.includes('[feat.') ||
+                trackName.includes('(Feat.') || trackName.includes('[Feat.')){
                 var features = '';
                 if(trackName.includes('(feat.')){
                     features = trackName.substring(trackName.indexOf('(feat.')+6,trackName.indexOf(')'));
