@@ -100,8 +100,12 @@ function parseHTML() {
                 var features = '';
                 if(trackName.includes('(feat.')){
                     features = trackName.substring(trackName.indexOf('(feat.')+6,trackName.indexOf(')'));
-                } else {
+                } else if(trackName.includes('[feat.')){
                     features = trackName.substring(trackName.indexOf('[feat.')+6,trackName.indexOf(']'));
+                } else if(trackName.includes('(Feat.')){
+                    features = trackName.substring(trackName.indexOf('(Feat.')+6,trackName.indexOf(')'));
+                } else if(trackName.includes('[Feat.')){
+                    features = trackName.substring(trackName.indexOf('[Feat.')+6,trackName.indexOf(']'));
                 }
 
                 var discPrefix = ((discCount == 1) ? '' : discNumbers[i] + '.');
