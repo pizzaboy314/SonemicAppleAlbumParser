@@ -2,7 +2,7 @@
  * EXAMPLES
  * 
  * EP:
- * https://music.apple.com/us/album/aromatic-ep/1325214121
+ * https://music.apple.com/us/album/aromatic-ep/1676677919
  * 
  * Features: 
  * https://music.apple.com/us/album/to-pimp-a-butterfly/974187289
@@ -34,10 +34,20 @@ function parseHTML() {
         var output = '';
 
         // artist name
-        var artistNameP = doc.querySelector('.headings__subtitles');
-        var vaRelease = (artistNameP.textContent.includes('Various Artists')) ? true : false;
-        var artistName = vaRelease ? 'Various Artists' : artistNameP.children[0].textContent.trim();
-
+        var artistNameDiv = doc.querySelector('.headings__subtitles');
+        var vaRelease = (artistNameDiv.textContent.includes('Various Artists')) ? true : false;
+        var artistCount = artistNameDiv.children.length;
+        var artistName = "";
+        if(artistCount < 2){
+            artistName = vaRelease ? 'Various Artists' : artistNameDiv.children[0].textContent.trim();
+        } else {
+            for (i = 0; i < artistCount; i++) {
+                if(i > 0){
+                    artistName = (i == artistCount - 1) ? artistName + ' & ' : artistName + ', ';
+                } 
+                artistName = artistName + artistNameDiv.children[i].textContent.trim();
+            }
+        }
 
         // album title
         var albumTitle = '';
@@ -73,30 +83,50 @@ function parseHTML() {
         var coverArtThumbUrl = srcset.substring(0,srcset.indexOf(firstsize)).trim();
         var coverArtUrl = coverArtThumbUrl.replace(/\d\d\dx\d\d\d/,'9999x9999').replace('webp','jpg');
 
-        // track numbers + disc number if applicable
+        // TRACK STUFF FROM JSON
         var discCount = 1;
-        var trackNumberDivs = doc.querySelectorAll('.songs-list-row__song-index');
-        var trackNumbers = new Array(trackNumberDivs.length);
-        var discNumbers = new Array(trackNumberDivs.length);
-        var prevTrackNumber = 1;
-        for (i = 0; i < trackNumberDivs.length; i++) {
-            trackNumbers[i] = trackNumberDivs[i].children[0].textContent.trim();
-            if(parseInt(trackNumbers[i], 10) < prevTrackNumber){
+
+        var serializedServerJsonString = doc.getElementById("serialized-server-data").textContent.trim();
+        var serializedServerJson = JSON.parse(serializedServerJsonString);
+        var sections = serializedServerJson[0].data.sections;
+        var tracks = new Array();
+        for (i = 0; i < sections.length; i++) {
+            if(sections[i].id.includes('track-list -')){
+                tracks = tracks.concat(sections[i].items);
+            }
+        }  
+        var trackCount = tracks.length;
+
+        var trackNumbers = new Array(trackCount);
+        var discNumbers = new Array(trackCount);
+        var prevDiscNumber = 1;
+
+        var trackNames = new Array(trackCount);
+        var trackFeats = new Map();
+
+        var trackArtistStrings = new Array(trackCount);
+        var trackDurations = new Array(trackCount);
+
+        var featurePadBase = 0;
+        for (i = 0; i < trackCount; i++) {
+            trackNumbers[i] = tracks[i].trackNumber;
+            discNumbers[i] = tracks[i].discNumber;
+
+            if(discNumbers[i] > prevDiscNumber){
                 discCount++;
             }
-            discNumbers[i] = discCount;
-            prevTrackNumber = parseInt(trackNumbers[i], 10);
-        }
+            prevDiscNumber = discNumbers[i];
 
-        // track names
-        var trackNameDivs = doc.querySelectorAll('.songs-list-row__song-name');
-        var trackNames = new Array(trackNameDivs.length);
-        var trackFeats = new Map();
-        var featurePadBase = 0;
-        for (i = 0; i < trackNameDivs.length; i++) {
-            var trackName = trackNameDivs[i].textContent.trim();
+            var trackArtistNames = tracks[i].artistName;
+            var containerArtistName = tracks[i].containerArtistName;
+            if(vaRelease){
+                trackArtistStrings[i] = trackArtistNames;
+            }
+
+            var trackName = tracks[i].title;
             if(trackName.includes('(feat.') || trackName.includes('[feat.') ||
-                trackName.includes('(Feat.') || trackName.includes('[Feat.')){
+                trackName.includes('(Feat.') || trackName.includes('[Feat.') ||
+                (!vaRelease && artistName !== trackArtistNames)){
                 var features = '';
                 if(trackName.includes('(feat.')){
                     features = trackName.substring(trackName.indexOf('(feat.')+6,trackName.indexOf(')'));
@@ -106,6 +136,8 @@ function parseHTML() {
                     features = trackName.substring(trackName.indexOf('(Feat.')+6,trackName.indexOf(')'));
                 } else if(trackName.includes('[Feat.')){
                     features = trackName.substring(trackName.indexOf('[Feat.')+6,trackName.indexOf(']'));
+                } else {
+                    features = trackArtistNames.replace(artistName+',','').replace(artistName+' &','').replace(artistName,'').trim();
                 }
 
                 var discPrefix = ((discCount == 1) ? '' : discNumbers[i] + '.');
@@ -132,7 +164,7 @@ function parseHTML() {
                 }
                 if(trackName.includes('(feat.')){
                     trackName = trackName.substring(0,trackName.indexOf('(feat.')).trim();
-                } else {
+                } else if(trackName.includes('[feat.')) {
                     trackName = trackName.substring(0,trackName.indexOf('[feat.')).trim();
                 }
             }
@@ -140,35 +172,10 @@ function parseHTML() {
                 trackName = trackName.replace('(Live)','').replace('[Live]','').trim();
             }
             trackNames[i] = trackName;
+
+            trackDurations[i] = new Date(tracks[i].duration).toISOString().slice(14,19).replace(/^0+/,'');
         }
         featurePadBase++;
-
-        // track artists, for various artists
-        var trackArtistDivs = doc.querySelectorAll('.songs-list-row__by-line');
-        var trackArtistStrings = new Array(trackNames.length);
-        if(vaRelease){
-            for (i = 0; i < trackArtistDivs.length; i++) {
-                var currSpan = trackArtistDivs[i].children[0];
-                var numArtistsDoubled = currSpan.children.length;
-                var trackArtistString = '';
-                for(j = 0; j < numArtistsDoubled; j=j+2){
-                    trackArtistString = trackArtistString + currSpan.children[j].textContent.trim();
-                    if(j < (numArtistsDoubled - 4)){
-                        trackArtistString = trackArtistString + ', ';
-                    } else if(j == (numArtistsDoubled - 4)){
-                        trackArtistString = trackArtistString + ' & ';
-                    }  
-                }
-                trackArtistStrings[i] = trackArtistString;
-            }
-        }
-        
-        // track durations
-        var trackDurationDivs = doc.querySelectorAll('.songs-list-row__length');
-        var trackDurations = new Array(trackDurationDivs.length);
-        for (i = 0; i < trackDurationDivs.length; i++) {
-            trackDurations[i] = trackDurationDivs[i].textContent.trim();
-        }
 
         // text output
         output = output + artistName + '\n';
