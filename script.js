@@ -173,7 +173,7 @@ function parseHTML() {
             }
             trackNames[i] = trackName;
 
-            trackDurations[i] = new Date(tracks[i].duration).toISOString().slice(14,19).replace(/^0+/,'');
+            trackDurations[i] = tracks[i].duration === undefined ? "" : new Date(tracks[i].duration).toISOString().slice(14,19).replace(/^0+/,'');
         }
         featurePadBase++;
 
