@@ -34,16 +34,17 @@
 	<section>
 		<p><a href="https://rateyourmusic.com">RYM</a> (soon to be Sonemic) is a music site much like IMDb for rating, cataloging, and finding new music. The advanced tracklist input for adding a new album to the site is of the format:</p>
 		<pre><code>TRACK NUM|TRACK NAME|TRACK DURATION</code></pre>
-		<p>Using a Apple Music album URL as a source, this app gives you the artist name, album title, release date, album type, the full tracklist in the correct format (including the track artist for VA releases), and a full list of featured artists. The album artwork is displayed for download below the text content in high resolution.</p>
+		<p>Using a Apple Music album URL or HTML file as a source, this app gives you the artist name, album title, release date, album type, the full tracklist in the correct format (including the track artist for VA releases), genre list, and a full list of featured artists. The album artwork is displayed for download below the text content in high resolution.</p>
 	</section>
 	<section>
 		<h2>example</h2>
 		<p>Given an input of <a href="https://music.apple.com/us/album/to-pimp-a-butterfly/1440828886">https://music.apple.com/us/album/to-pimp-a-butterfly/1440828886</a> the application will output:</p>
 		<pre><code>Kendrick Lamar
 To Pimp a Butterfly
-Mar 16, 2015
+March 14, 2015
 
 Type: Album
+Genres: Hip-Hop/Rap, Music, Hardcore Rap, West Coast Rap, Gangsta Rap, Rap
 
 1|Wesley's Theory|4:47
 2|For Free? (Interlude)|2:10
@@ -63,14 +64,16 @@ Type: Album
 16|Mortal Man|12:07
 
 Track Features
-George Clinton:   1
-Thundercat:       1,5
-James Fauntleroy: 11
-Ronald Isley:     11
-Rapsody:          12
-Snoop Dogg:       4
-Bilal:            4,5
-Anna Wise:        4,5</code></pre>
+George Clinton:    1
+Thundercat:        1,5
+Bilal:             4,5
+Anna Wise:         4,5
+Snoop Dogg:        4
+James Fauntleroy:  11
+Ronald Isley:      11
+Rapsody:           12
+
+℗ 2015 Aftermath/interscope (Top Dawg Entertainment)</code></pre>
 		<a href="https://is2-ssl.mzstatic.com/image/thumb/Music128/v4/2c/5d/7c/2c5d7c30-8c82-a810-1f66-41131b8a989b/00602547276636.rgb.jpg/9999x9999bb-60.jpg" download="To Pimp a Butterfly.jpg">
 			<img id="exampleArt" src="https://is2-ssl.mzstatic.com/image/thumb/Music128/v4/2c/5d/7c/2c5d7c30-8c82-a810-1f66-41131b8a989b/00602547276636.rgb.jpg/9999x9999bb-60.jpg">
 		</a>

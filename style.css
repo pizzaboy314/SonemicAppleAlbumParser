@@ -69,12 +69,12 @@ nav ul {
 }
 #urlInput h3 {
     margin-right: 15px;
-    width: 325px;
+    width: 350px;
     vertical-align: middle;
 }
 #urlInput button {
     margin-left: 15px;
-    width: 75px;
+    width: 120px;
     height: 30px;
     box-sizing: border-box;
     border: 2px solid black;
@@ -97,6 +97,49 @@ nav ul {
 #urlInput input:focus {
     background-color: lightgray;
 }
+
+#parseURLButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+#parseURLButton:disabled:hover {
+    background-color: inherit; /* prevents hover glow or color shift */
+    box-shadow: none; /* remove any hover shadows if present */
+}
+
+#fileInput {
+    display: flex;
+    align-items: center;
+    margin: auto;
+    max-width: 1000px;
+}
+#fileInput h3 {
+    margin-right: 15px;
+    width: 100%;
+    vertical-align: middle;
+}
+#fileInput input {
+    width: 200px;
+    padding: 5px 5px;
+    margin: 5px 0;
+    vertical-align: middle;
+}
+#fileInput button {
+    margin-left: 15px;
+    width: 150px;
+    height: 30px;
+    box-sizing: border-box;
+    border: 2px solid black;
+    border-radius: 4px;
+    text-align: center;
+    vertical-align: middle;
+}
+#fileInput button:hover {
+    background-color: lightgray;
+}
+  
 
 main {
 	float: left;
@@ -185,10 +228,14 @@ body > section > pre {
     border-radius: 6px;
 }
 
+/* commented out while url API service is not functional
+#fileInputSection {
+    display: none;
+} */
+
 #outputContainer {
     display: none;
 }
-
 
 #coverImg {
     display: block;

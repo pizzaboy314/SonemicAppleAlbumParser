@@ -40,9 +40,16 @@
 		<div id="urlInput">
 			<h3>Enter an Apple album url:</h2>
 			<input type="text" id="url" name="url">	
-			<button type="button" onclick="parseHTML()">Parse</button>
+			<button type="button" id="parseURLButton" onclick="parseHTML()">Parse URL</button>
 		</div>
 	</section>
+	<section id="fileInputSection">
+		<div id="fileInput">
+		  <h3>Upload the saved Apple Music album page HTML file:</h3>
+		  <input type="file" id="htmlFile" accept=".html,text/html">
+		  <button type="button" id="parseHtmlButton" onclick="parseHtmlFile()">Parse HTML</button>
+		</div>
+	  </section>	  
 	<section id="outputContainer">
 		<pre id="textOutputContainer"><code id="textOutput">Kendrick Lamar
 To Pimp a Butterfly
