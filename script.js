@@ -540,7 +540,7 @@ function formatISODurationToTimeString(isoDuration) {
 // from chatgpt
 function formatDateToLongForm(dateStr) {
   const date = new Date(dateStr);
-  const options = { year: 'numeric', month: 'long', day: 'numeric' };
+  const options = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' };
   return date.toLocaleDateString('en-US', options);
 }
 
