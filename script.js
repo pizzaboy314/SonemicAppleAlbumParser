@@ -481,8 +481,39 @@ function parseDataFromSource(doc) {
     var output = '';
 
     // contains everything except disc numbers and VA release artist lists
-    var schemaJsonString = doc.getElementById("schema:music-album").textContent.trim();
-    var schemaJson = JSON.parse(schemaJsonString);
+    
+    var schemaElement = doc.getElementById("schema:music-album");
+    var schemaJson;
+
+    if (schemaElement) {
+        // Preserve support for older Apple Music HTML
+        schemaJson = JSON.parse(schemaElement.textContent.trim());
+    } else {
+        // Read metadata directly from newer Apple Music HTML
+        const titleElement = doc.querySelector('.headings__title > span');
+        const artistElement = doc.querySelector('.headings__subtitles');
+        const genreElement = doc.querySelector('.headings__metadata-bottom');
+        const footerElement = doc.querySelector('.footer-body > p');
+
+        if (!titleElement || !artistElement || !footerElement) {
+            alert('Unable to locate album metadata in the uploaded HTML.');
+            return;
+        }
+
+        const artist = artistElement.textContent.trim();
+        const genre = genreElement?.textContent.split('·')[0].trim() || '';
+
+        schemaJson = {
+            name: titleElement.textContent.trim(),
+            byArtist: artist === 'Various Artists'
+                ? []
+                : [{ name: artist }],
+            datePublished: footerElement.textContent.split(/\r?\n/)[0].trim(),
+            genre: genre ? [genre] : [],
+            image: ''
+        };
+    }
+
 
     // ARTIST NAME(S)
     var artistCount = schemaJson.byArtist.length;
@@ -521,9 +552,59 @@ function parseDataFromSource(doc) {
         genreList = genreList + schemaJson.genre[i];
     }
 
+    
     // COVER ART URL
-    var coverArtThumbUrl = schemaJson.image;
-    var coverArtUrl = coverArtThumbUrl.replace(/\d+x\d+bb/, '9999x9999') + "?lastmod=" + Date.now();
+    var coverArtThumbUrl = schemaJson.image || '';
+    var coverArtUrl = coverArtThumbUrl.replace(
+        /\d+x\d+bb(?=\.)/i,
+        '9999x9999bb'
+    );
+
+    // If the saved HTML has no original artwork URL,
+    // retrieve it using the album ID preserved in its links.
+    if (!coverArtUrl) {
+        const albumLink = doc.querySelector(
+            'a[data-testid^="other-language-"][href*="/album/"]'
+        )?.getAttribute('href');
+
+        const match = albumLink?.match(
+            /music\.apple\.com\/([a-z]{2})\/album\/[^/?#]+\/(\d+)/i
+        );
+
+        if (match) {
+            const country = match[1];
+            const albumId = match[2];
+
+            $.ajax({
+                url: 'https://itunes.apple.com/lookup',
+                data: {
+                    id: albumId,
+                    country: country,
+                    entity: 'song'
+                },
+                dataType: 'jsonp',
+                timeout: 15000
+            }).done(function(data) {
+                const album = data.results?.find(item =>
+                    item.wrapperType === 'collection' &&
+                    String(item.collectionId) === albumId
+                );
+
+                if (album?.artworkUrl100) {
+                    coverArtUrl = album.artworkUrl100.replace(
+                        /\d+x\d+bb(?=\.)/i,
+                        '9999x9999bb'
+                    );
+
+                    coverImg.src = coverArtUrl;
+                    coverAnchor.href = coverArtUrl;
+                }
+            }).fail(function() {
+                console.warn('Album artwork lookup failed.');
+            });
+        }
+    }
+
 
     // TRACK STUFF FROM HTML DEPENDING ON URL OR HARD FILE
     var discCount = 1;
@@ -699,26 +780,103 @@ function parseDataFromSource(doc) {
         oldCoverAnchor.parentNode.removeChild(oldCoverAnchor);
     }
     
-    // generate cover art html tags
-    var coverAnchor = document.createElement('a');
+    
+    // GENERATE ARTWORK DOWNLOAD CARD
+    const coverAnchor = document.createElement('a');
     coverAnchor.id = 'coverAnchor';
-    coverAnchor.href = coverArtUrl;
-    coverAnchor.download = albumTitle + '.jpg';
+    coverAnchor.setAttribute('role', 'button');
+    coverAnchor.tabIndex = 0;
+    coverAnchor.title = 'Click to download full-resolution album artwork';
 
-    var coverImg = document.createElement('img');
-    coverImg.onload = function () {
-        if (this.naturalWidth < 1000) {
-            document.getElementById('coverImg').style.width = this.naturalWidth;
-        } else {
-            document.getElementById('coverImg').style.width = '100%';
-        }
-    };
+    coverAnchor.style.cssText = `
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+        padding: 12px;
+        box-sizing: border-box;
+        border: 1px solid #888;
+        border-radius: 10px;
+        cursor: pointer;
+        text-decoration: none;
+        text-align: center;
+    `;
+
+    // DOWNLOAD INSTRUCTION ABOVE ARTWORK
+    const downloadHint = document.createElement('span');
+    downloadHint.textContent = '↓ Click to download full-resolution artwork';
+    downloadHint.style.cssText = `
+        font-size: 0.9em;
+        color: inherit;
+    `;
+
+    coverAnchor.appendChild(downloadHint);
+
+    // ARTWORK IMAGE
+    const coverImg = document.createElement('img');
     coverImg.id = 'coverImg';
-    coverImg.src = coverArtUrl;
+    coverImg.alt = `${albumTitle} artwork`;
+
+    coverImg.onload = function() {
+        this.style.width = this.naturalWidth < 1000
+            ? `${this.naturalWidth}px`
+            : '100%';
+        this.style.maxWidth = '100%';
+        this.style.height = 'auto';
+    };
+
+    if (coverArtUrl) {
+        coverImg.src = coverArtUrl;
+    }
+
     coverAnchor.appendChild(coverImg);
 
-    // reveal the output in the dom
-    var sectionTag = document.getElementById('outputContainer');
+    // CLICK TO DOWNLOAD
+    coverAnchor.addEventListener('click', async function() {
+        if (!coverArtUrl) {
+            alert('Album artwork is unavailable.');
+            return;
+        }
+
+        try {
+            const response = await fetch(coverArtUrl);
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+
+            const blob = await response.blob();
+            const blobUrl = URL.createObjectURL(blob);
+
+            const downloadLink = document.createElement('a');
+            downloadLink.href = blobUrl;
+            downloadLink.download =
+                `${artistName} - ${albumTitle}.jpg`
+                    .replace(/[\\/:*?"<>|]/g, '_');
+
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            downloadLink.remove();
+
+            setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+
+        } catch (error) {
+            console.error('Artwork download failed:', error);
+            alert('Unable to download album artwork.');
+        }
+    });
+
+    // KEYBOARD ACCESSIBILITY
+    coverAnchor.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            coverAnchor.click();
+        }
+    });
+
+    // REVEAL OUTPUT
+    const sectionTag = document.getElementById('outputContainer');
     sectionTag.appendChild(coverAnchor);
     sectionTag.style.display = 'block';
 }
@@ -908,7 +1066,6 @@ function parseJSON(doc) {
     // generate cover art html tags
     var coverAnchor = document.createElement('a');
     coverAnchor.id = 'coverAnchor';
-    coverAnchor.href = coverArtUrl;
     coverAnchor.download = albumTitle + '.jpg';
 
     var coverImg = document.createElement('img');
