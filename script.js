@@ -2,7 +2,7 @@
  * EXAMPLES
  * 
  * EP:
- * https://music.apple.com/us/album/aromatic-ep/1676677919
+ * https://music.apple.com/us/album/shaman-ep/1569513168
  * 
  * Features: 
  * https://music.apple.com/us/album/to-pimp-a-butterfly/1440828886
