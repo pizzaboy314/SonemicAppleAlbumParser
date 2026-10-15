@@ -32,15 +32,14 @@
 	</header>
 	<section>
 		<p id="introText">
-			<strong>A tool for parsing release details from Apple album pages to add new Sonemic releases. More information in the about section: &#128070;</strong>
-			For best results, use Google Chrome and disable the extension Honey.
+			<strong>A tool for pulling release and track details from Apple album pages to add new Sonemic releases. More information in the about section above.</strong>
 		</p>
 	</section>
 	<section>
 		<div id="urlInput">
 			<h3>Enter an Apple album url:</h2>
 			<input type="text" id="url" name="url">	
-			<button type="button" id="parseURLButton" onclick="parseHTML()">Parse URL</button>
+			<button type="button" id="parseURLButton" onclick="parseDataFromItunesApi()">Parse URL</button>
 		</div>
 	</section>
 	<section id="fileInputSection">
@@ -53,9 +52,10 @@
 	<section id="outputContainer">
 		<pre id="textOutputContainer"><code id="textOutput">Kendrick Lamar
 To Pimp a Butterfly
-Mar 16, 2015
+March 15, 2015
 
 Type: Album
+Genres: Hip-Hop/Rap
 
 1|Wesley's Theory|4:47
 2|For Free? (Interlude)|2:10
@@ -75,14 +75,16 @@ Type: Album
 16|Mortal Man|12:07
 
 Track Features
-George Clinton:   1
-Thundercat:       1,5
-James Fauntleroy: 11
-Ronald Isley:     11
-Rapsody:          12
-Snoop Dogg:       4
-Bilal:            4,5
-Anna Wise:        4,5</code></pre>
+George Clinton:    1
+Thundercat:        1,5
+Bilal:             4,5
+Anna Wise:         4,5
+Snoop Dogg:        4
+James Fauntleroy:  11
+Ronald Isley:      11
+Rapsody:           12
+
+℗ 2015 Aftermath/Interscope (Top Dawg Entertainment)</code></pre>
 	</section>
 	<footer>
 		<p>&#169; bryan spahr  &#8226;  

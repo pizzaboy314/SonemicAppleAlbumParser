@@ -228,10 +228,10 @@ body > section > pre {
     border-radius: 6px;
 }
 
-/* commented out while url API service is not functional
+
 #fileInputSection {
     display: none;
-} */
+} 
 
 #outputContainer {
     display: none;

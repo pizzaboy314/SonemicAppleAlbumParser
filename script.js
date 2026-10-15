@@ -15,6 +15,10 @@
  * 
  * Various Artists:
  * https://music.apple.com/us/album/cyberpunk-2077-more-music-from-night-city-radio-original/1558984869
+ * 
+ * Live album
+ * https://music.apple.com/us/album/united-we-stand-live/1827097035
+ * 
  */
 
 function parseHTML() {
@@ -31,6 +35,413 @@ function parseHTML() {
     });
 
 }
+
+// ChatGPT assisted rewrite using the iTunes Search API
+function parseDataFromItunesApi() {
+    const input = document.getElementById('url').value.trim();
+
+    let url;
+    try {
+        url = new URL(input);
+    } catch {
+        alert('Please enter a valid Apple Music URL.');
+        return;
+    }
+
+    const match = url.pathname.match(
+        /^\/([a-z]{2})\/album\/(?:[^/]+\/)?(\d+)\/?$/i
+    );
+
+    if (url.hostname !== 'music.apple.com' || !match) {
+        alert('Please enter a valid Apple Music album URL.');
+        return;
+    }
+
+    const country = match[1].toLowerCase();
+    const albumId = match[2];
+
+    console.log('Album ID:', albumId);
+    console.log('Storefront:', country);
+
+
+    const apiUrl = new URL('https://itunes.apple.com/lookup');
+    apiUrl.searchParams.set('id', albumId);
+    apiUrl.searchParams.set('country', country);
+    apiUrl.searchParams.set('entity', 'song');
+    apiUrl.searchParams.set('limit', '200');
+
+    $.ajax({
+        url: apiUrl.toString(),
+        dataType: 'jsonp',
+        timeout: 15000
+    }).done(function(data) {
+        const album = data.results.find(item =>
+            item.wrapperType === 'collection' &&
+            String(item.collectionId) === albumId
+        );
+
+        const tracks = data.results
+            .filter(item =>
+                item.wrapperType === 'track' &&
+                item.kind === 'song' &&
+                String(item.collectionId) === albumId
+            )
+            .sort((a, b) =>
+                (a.discNumber - b.discNumber) ||
+                (a.trackNumber - b.trackNumber)
+            );
+        
+        if (!album) {
+            console.error('Album metadata not found.');
+            return;
+        }
+
+
+        if (tracks.length === 0) {
+            alert(
+                "The iTunes API could not retrieve the tracklist for this album. " +
+                "Please save the Apple Music page as an HTML file and upload it manually."
+            );
+
+            document.getElementById('fileInputSection').style.display = 'block';
+            document.getElementById('textOutput').textContent = '';
+            document.getElementById('outputContainer').style.display = 'none';
+            return;
+        }
+
+
+        const albumData = {
+            artistName: album.artistName || '',
+            albumTitle: album.collectionName || '',
+            releaseDate: album.releaseDate
+                ? formatDateToLongForm(album.releaseDate)
+                : '',
+            genres: album.primaryGenreName
+                ? [album.primaryGenreName]
+                : [],
+            copyright: album.copyright || '',
+            artworkUrl: (album.artworkUrl100 || '')
+                .replace(/\d+x\d+bb(?=\.)/i, '9999x9999bb'),
+            trackCount: tracks.length
+        };
+
+        const rawTitle = albumData.albumTitle;
+
+        if (/\s*-\s*EP$/i.test(rawTitle)) {
+            albumData.albumType = 'EP';
+            albumData.albumTitle = rawTitle.replace(/\s*-\s*EP$/i, '').trim();
+        } else if (/\s*(?:\(Live\)|\[Live\])/i.test(rawTitle)) {
+            albumData.albumType = 'Live Album';
+            albumData.albumTitle = rawTitle.replace(/\s*(?:\(Live\)|\[Live\])/i, '').trim();
+        } else {
+            albumData.albumType = 'Album';
+        }
+
+        console.log('Normalized album data:', albumData);
+
+        const trackData = tracks.map(track => ({
+            trackNumber: track.trackNumber,
+            discNumber: track.discNumber,
+            title: track.trackName || '',
+            artistName: track.artistName || '',
+            duration: typeof track.trackTimeMillis === 'number'
+                ? `${Math.floor(track.trackTimeMillis / 60000)}:${String(
+                    Math.floor((track.trackTimeMillis % 60000) / 1000)
+                ).padStart(2, '0')}`
+                : ''
+        }));
+
+        // console.log('Normalized track data:', trackData);
+
+
+        const featureCandidates = trackData.filter(track =>
+            /[\[(](?:feat\.?|ft\.?|featuring)\s/i.test(track.title) ||
+            (
+                albumData.artistName !== 'Various Artists' &&
+                track.artistName !== albumData.artistName
+            )
+        );
+
+        console.table(featureCandidates);
+
+
+        const trackFeatures = new Map();
+        const multiDisc = trackData.some(track => track.discNumber > 1);
+
+        for (const track of trackData) {
+            const match = track.title.match(
+                /\s*[\[(](?:feat\.?|ft\.?|featuring)\s+([^\]\)]+)[\]\)]/i
+            );
+
+            if (!match) continue;
+
+            const artists = match[1].split(/\s*,\s*|\s+&\s+/);
+            const trackRef = multiDisc
+                ? `${track.discNumber}.${track.trackNumber}`
+                : String(track.trackNumber);
+
+            for (const artist of artists) {
+                const name = artist.trim();
+                if (!name) continue;
+
+                if (!trackFeatures.has(name)) {
+                    trackFeatures.set(name, []);
+                }
+
+                trackFeatures.get(name).push(trackRef);
+            }
+
+            track.title = track.title.replace(match[0], '').trim();
+        }
+
+
+        if (albumData.artistName !== 'Various Artists') {
+            const primaryArtist = albumData.artistName.trim();
+
+            for (const track of trackData) {
+                let credits = track.artistName.trim();
+
+                if (!credits || credits === primaryArtist) continue;
+
+                // Remove the primary album artist from combined credits
+                for (const separator of [' & ', ', ']) {
+                    if (credits.startsWith(primaryArtist + separator)) {
+                        credits = credits.slice((primaryArtist + separator).length);
+                        break;
+                    }
+                    if (credits.endsWith(separator + primaryArtist)) {
+                        credits = credits.slice(0, -(separator + primaryArtist).length);
+                        break;
+                    }
+                }
+
+                const artists = credits.split(/\s+&\s+|,\s*/);
+                const trackRef = multiDisc
+                    ? `${track.discNumber}.${track.trackNumber}`
+                    : String(track.trackNumber);
+
+                for (const artist of artists) {
+                    const name = artist.trim();
+                    if (!name || name === primaryArtist) continue;
+
+                    if (!trackFeatures.has(name)) {
+                        trackFeatures.set(name, []);
+                    }
+
+                    const trackNumbers = trackFeatures.get(name);
+
+                    // Prevent duplicate credits from titles and artist metadata
+                    if (!trackNumbers.includes(trackRef)) {
+                        trackNumbers.push(trackRef);
+                    }
+                }
+            }
+        }
+
+        const albumArtists = new Set(
+            albumData.artistName
+                .split(/\s+&\s+|,\s*/)
+                .map(name => name.trim().toLocaleLowerCase())
+                .filter(Boolean)
+        );
+
+        for (const artist of trackFeatures.keys()) {
+            if (albumArtists.has(artist.trim().toLocaleLowerCase())) {
+                trackFeatures.delete(artist);
+            }
+        }
+
+        console.table(
+            Array.from(trackFeatures, ([artist, tracks]) => ({
+                artist,
+                tracks: tracks.join(',')
+            }))
+        );
+
+
+        const isVariousArtists = albumData.artistName === 'Various Artists';
+
+
+        albumData.albumTitle = albumData.albumTitle
+            .replace(/\s*(?:\(Live\)|\[Live\])/gi, '')
+            .trim();
+
+        for (const track of trackData) {
+            track.title = track.title
+                .replace(/\s*(?:\(Live\)|\[Live\])/gi, '')
+                .trim();
+        }
+
+
+        const outputLines = [
+            albumData.artistName,
+            albumData.albumTitle,
+            albumData.releaseDate,
+            '',
+            `Type: ${albumData.albumType}`,
+            `Genres: ${albumData.genres.join(', ')}`,
+            ''
+        ];
+
+        // TRACKLIST
+        for (const track of trackData) {
+            const number = multiDisc
+                ? `${track.discNumber}.${track.trackNumber}`
+                : String(track.trackNumber);
+
+            const artist = isVariousArtists
+                ? `${track.artistName} - `
+                : '';
+
+            outputLines.push(
+                `${number}|${artist}${track.title}|${track.duration}`
+            );
+        }
+
+        // FEATURED ARTISTS
+        if (trackFeatures.size > 0) {
+            outputLines.push('', 'Track Features');
+
+            const maxLength = Math.max(
+                ...Array.from(trackFeatures.keys(), name => name.length)
+            );
+
+            for (const [artist, numbers] of trackFeatures) {
+                const padding = ' '.repeat(maxLength - artist.length + 1);
+                outputLines.push(
+                    `${artist}: ${padding}${numbers.join(',')}`
+                );
+            }
+        }
+
+        // COPYRIGHT
+        outputLines.push('', albumData.copyright, '');
+
+        const sonemicOutput = outputLines.join('\n');
+
+        console.log(sonemicOutput);
+        document.getElementById('textOutput').textContent = sonemicOutput;
+        document.getElementById('outputContainer').style.display = 'block';
+
+
+        const oldCoverAnchor = document.getElementById('coverAnchor');
+        if (oldCoverAnchor) {
+            oldCoverAnchor.remove();
+        }
+
+        if (albumData.artworkUrl) {
+            const coverAnchor = document.createElement('a');
+            coverAnchor.id = 'coverAnchor';
+            coverAnchor.href = albumData.artworkUrl;
+            coverAnchor.download = `${albumData.albumTitle}.jpg`;
+            coverAnchor.target = '_blank';
+            coverAnchor.rel = 'noopener noreferrer';
+
+            coverAnchor.addEventListener('click', async function(event) {
+                event.preventDefault();
+
+                try {
+                    const response = await fetch(albumData.artworkUrl);
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+
+                    const blob = await response.blob();
+                    const blobUrl = URL.createObjectURL(blob);
+
+                    const downloadLink = document.createElement('a');
+                    downloadLink.href = blobUrl;
+                    downloadLink.download =
+                        `${albumData.artistName} - ${albumData.albumTitle}.jpg`
+                            .replace(/[\\/:*?"<>|]/g, '_');
+
+                    document.body.appendChild(downloadLink);
+                    downloadLink.click();
+                    downloadLink.remove();
+
+                    setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+
+                } catch (error) {
+                    console.error('Artwork download failed:', error);
+                    alert('Unable to download album artwork.');
+                }
+            });
+
+            const coverImg = document.createElement('img');
+            coverImg.id = 'coverImg';
+            coverImg.src = albumData.artworkUrl;
+            coverImg.alt = `${albumData.albumTitle} artwork`;
+
+            coverImg.onload = function() {
+                this.style.width = this.naturalWidth < 1000
+                    ? `${this.naturalWidth}px`
+                    : '100%';
+                this.style.maxWidth = '100%';
+                this.style.height = 'auto';
+            };
+
+            coverAnchor.appendChild(coverImg);
+
+
+            // Remove the hyperlink so the browser doesn't preview the Apple URL
+            coverAnchor.removeAttribute('href');
+            coverAnchor.removeAttribute('target');
+            coverAnchor.removeAttribute('download');
+
+            // Make the artwork act like a download button
+            coverAnchor.setAttribute('role', 'button');
+            coverAnchor.tabIndex = 0;
+            coverAnchor.title = 'Click to download full-resolution album artwork';
+
+            coverAnchor.style.cssText = `
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 8px;
+                width: 100%;
+                padding: 12px;
+                box-sizing: border-box;
+                border: 1px solid #888;
+                border-radius: 10px;
+                cursor: pointer;
+                text-decoration: none;
+                text-align: center;
+            `;
+
+            const downloadHint = document.createElement('span');
+            downloadHint.textContent = '↓ Click to download full-resolution artwork';
+            downloadHint.style.cssText = `
+                font-size: 0.9em;
+                color: inherit;
+            `;
+
+            coverAnchor.insertBefore(downloadHint, coverImg);
+
+            coverAnchor.appendChild(downloadHint);
+
+            // Keyboard accessibility
+            coverAnchor.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    coverAnchor.click();
+                }
+            });
+
+            coverAnchor.prepend(downloadHint);
+            document.getElementById('outputContainer').appendChild(coverAnchor);
+        }
+
+
+
+    }).fail(function(jqXHR, status, error) {
+        console.error('iTunes API request failed:', status, error);
+    });
+
+
+    return { albumId, country };
+}
+
 
 function parseHtmlFile() {
     const fileInput = document.getElementById('htmlFile');
